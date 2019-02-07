@@ -85,20 +85,3 @@ h1 {
   text-align: center;
 }
 
-#board{
-  fill:"#353535";
-}
-
-#paddle {
-  fill:white;
-}
-
-#circ{
-  fill:white;
-}
-
-#center{
-  stroke:white;
-  stroke-width:3;
-  
-}
