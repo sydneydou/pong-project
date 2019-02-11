@@ -7,8 +7,8 @@ export default class Ball {
     this.boardWidth = boardWidth;
     this.boardHeight = boardHeight;
     this.direction = 1;
+    this.ping = new Audio("public/sounds/pong-01.wav");
 
-    //set x and y coodinates at the center
     this.reset();
   }
 
@@ -16,79 +16,100 @@ export default class Ball {
     this.x = this.boardWidth / 2;
     this.y = this.boardHeight / 2;
 
-    // generating a random number between -5 and 5
     this.vy = 0;
 
     while (this.vy === 0) {
       this.vy = Math.floor(Math.random() * 10 - 5);
     }
 
-    // setting a number between -5 and 5 based on the vy
     this.vx = this.direction * (6 - Math.abs(this.vy));
   }
 
-    wallCollision(){
-      const hitLeft = this.x - this.radius <= 0;
-      const hitRight = this.x + this.radius >= this.boardWidth;
-      const hitTop = this.y - this.radius <= 0;
-      const hitBottom = this.y + this.radius >= this.boardHeight;
+  wallCollision() {
+    const hitLeft = this.x - this.radius <= 0;
+    const hitRight = this.x + this.radius >= this.boardWidth;
+    const hitTop = this.y - this.radius <= 0;
+    const hitBottom = this.y + this.radius >= this.boardHeight;
 
-      if (hitLeft || hitRight){
-          this.vx = -this.vx;
-      } else if(hitTop || hitBottom){
-            this.vy=-this.vy
+    if (hitLeft || hitRight) {
+      this.vx = -this.vx;
+    } else if (hitTop || hitBottom) {
+      this.vy = -this.vy;
+    }
+  }
+
+  paddleCollision(player1, player2) {
+    if (this.vx > 0) {
+      let paddle = player2.coordinates(
+        player2.x,
+        player2.y,
+        player2.width,
+        player2.height
+      );
+      let { leftX, rightX, topY, bottomY } = paddle;
+
+      if (
+        this.x + this.radius >= leftX &&
+        this.y >= topY &&
+        this.y <= bottomY
+      ) {
+        this.vx = -this.vx;
+        this.ping.play();
+      }
+
+      if (this.y + this.radius <= topY && this.x <= rightX && this.x >= leftX) {
+        this.vy = -this.vy;
+      }
+
+      if (
+        this.y - this.radius <= bottomY &&
+        this.x <= rightX &&
+        this.x >= leftX
+      ) {
+        this.vy = -this.vy;
+      }
+    } else {
+      let paddle = player1.coordinates(
+        player1.x,
+        player1.y,
+        player1.width,
+        player1.height
+      );
+      let { leftX, rightX, topY, bottomY } = paddle;
+
+      if (
+        this.x - this.radius <= rightX &&
+        this.y >= topY &&
+        this.y <= bottomY
+      ) {
+        this.vx = -this.vx;
+        this.ping.play();
+      }
+
+      if (this.y + this.radius >= topY && this.x >= rightX && this.x <= leftX) {
+        this.vy = -this.vy;
+      }
+
+      if (
+        this.y - this.radius <= bottomY &&
+        this.x <= rightX &&
+        this.x >= leftX
+      ) {
+        this.vy = -this.vy;
       }
     }
+  }
+  goal(player) {
+    player.score++;
 
-    paddleCollision(player1, player2){
-        if (this.vx > 0){
-            //detect player 2 collision
-
-            let paddle = player2.coordinates(player2.x, player2.y, player2.width, player2.height);
-            let {leftX, topY, bottomY } = paddle;
-
-            if(
-                this.x + this.radius >= leftX
-                && this.y >= topY
-                && this.y <= bottomY
-                //is the right edge of the ball greater than or equal to the left edge of the paddle
-                //and is the ball center Y >= top of the paddle AND <= the bottom of the paddle
-            ){
-                this.vx = -this.vx;
-
-            }
-
-
-        } else{
-            //detect player 1 collision
-            //if left edge of the ball <= right edge of paddle
-            //is the ball Y>= paddle top AND <= paddle bottom
-            let paddle = player1.coordinates(player1.x, player1.y, player1.width, player1.height);
-            let {rightX, topY, bottomY } = paddle;
-
-            if(
-                this.x - this.radius <= rightX
-                && this.y >= topY
-                && this.y <= bottomY
-            ){
-                
-                this.vx = -this.vx;
-            }
-
-        }
-
-        goal(player){
-            //increment the player score by 1
-            //reset ball in the middlegi
-        }
-
-    }
+    this.reset();
+  }
 
   render(svg, player1, player2) {
     this.x += this.vx;
     this.y += this.vy;
     this.wallCollision();
-    this.paddleCollision(player1,player2);
+    this.paddleCollision(player1, player2);
     let circle = document.createElementNS(SVG_NS, "circle");
 
     circle.setAttributeNS(null, "r", this.radius);
@@ -97,5 +118,16 @@ export default class Ball {
     circle.setAttributeNS(null, "fill", "#FFF");
 
     svg.appendChild(circle);
+
+    const rightGoal = this.x + this.radius >= this.boardWidth;
+    const leftGoal = this.x - this.radius <= 0;
+
+    if (rightGoal) {
+      this.goal(player1);
+      this.direction = 1;
+    } else if (leftGoal) {
+      this.goal(player2);
+      this.direction = -1;
+    }
   }
 }

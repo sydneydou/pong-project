@@ -1,6 +1,21 @@
 # Pong Game
 
-A basic pong game using SVGs.
+Project 3 for Web Development at RED Academy. A basic pong game using SVGs.
+
+**Stretch Goal**
+
+- Include additional ball for increased difficulty
+- Add top and bottom ball detection for both paddles for increased accuracy
+
+**Skills learned**
+
+- Classes in ES6
+- Keycode Constants
+- Object Oriented Prgramming
+- Instances
+- Properties
+- Methods
+- Imports and Exports
 
 ## Setup
 
@@ -19,9 +34,11 @@ A basic pong game using SVGs.
 ## Keys
 
 **Player 1:**
-* a: up
-* z: down
+
+- a: up
+- z: down
 
 **Player 2:**
-* ▲ : up
-* ▼: down
+
+- ▲ : up
+- ▼: down
